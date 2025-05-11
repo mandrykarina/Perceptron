@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.datasets import make_classification
+from sklearn.preprocessing import StandardScaler
 
 
 class Perceptron:
@@ -17,7 +18,8 @@ class Perceptron:
         z = np.dot(self.weights, x)
         return self.activation(z)
 
-    def train(self, X, d):
+        def train(self, X, d):
+        self.errors = []  # Список для хранения ошибок по эпохам
         for epoch in range(self.epochs):
             total_error = 0
             for i in range(len(X)):
@@ -26,6 +28,7 @@ class Perceptron:
                 error = d[i] - y
                 self.weights += self.lr * error * np.insert(x, 0, 1)
                 total_error += abs(error)
+            self.errors.append(total_error)
             if epoch % 20 == 0:
                 print(f"Эпоха {epoch}, Ошибка: {total_error}")
 
@@ -40,6 +43,10 @@ X, d = make_classification(
     random_state=42
 )
 d = np.where(d == 0, 0, 1)  # Преобразуем метки в 0 и 1
+
+# Нормализация
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
 
 # Сохраняем датасет в CSV (опционально)
 df = pd.DataFrame(np.column_stack((X, d)),
